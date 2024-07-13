@@ -1,5 +1,5 @@
 
-# what I have done
+# What I have done
   created the app using composer
  Installed and publised Laravel Breeze for simple authentication scaffolding and than run the migrations for that.
  Implemented login throttling in auth.php and user can try for a maximum of 5 times.
