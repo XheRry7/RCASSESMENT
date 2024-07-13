@@ -19,7 +19,7 @@ class UserAuthenticationTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/login', [
             'email' => 'user@example.com',
             'password' => 'password',
         ]);
@@ -36,7 +36,7 @@ class UserAuthenticationTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/login', [
             'email' => 'user@example.com',
             'password' => 'wrongpassword',
         ]);
@@ -53,12 +53,12 @@ class UserAuthenticationTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
-        $firstLogin = $this->postJson('/api/login', [
+        $firstLogin = $this->postJson('/login', [
             'email' => 'user@example.com',
             'password' => 'password',
         ]);
 
-        $secondLogin = $this->postJson('/api/login', [
+        $secondLogin = $this->postJson('/login', [
             'email' => 'user@example.com',
             'password' => 'password',
         ]);

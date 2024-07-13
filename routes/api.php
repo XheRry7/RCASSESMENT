@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ReportController;
 
 Route::post('/login', function (Request $request) {
     $request->validate([
@@ -26,6 +27,13 @@ Route::post('/login', function (Request $request) {
     return response()->json(['token' => $token], 200);
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
+
+
+Route::middleware(['auth:sanctum', 'single.device'])->group(function () {
     Route::apiResource('posts', PostController::class);
+    Route::post('reports', [ReportController::class, 'store']);
+});
+
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('reports', [ReportController::class, 'index']);
 });

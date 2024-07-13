@@ -2,58 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Services\ContentFilterService;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function store(Request $request)
+    public function index()
     {
-        $request->validate([
-            'content' => 'required|string',
-        ]);
-
-        if ($this->containsHateSpeech($request->content)) {
-            return response()->json(['message' => 'Content contains prohibited language'], 400);
-        }
-
-        $post = auth()->user()->posts()->create($request->all());
-
-        return response()->json($post, 201);
+        return Post::all();
     }
 
-    public function update(Request $request, $id)
+    public function store(Request $request, ContentFilterService $contentFilter)
     {
-        $post = auth()->user()->posts()->findOrFail($id);
+        $request->validate(['content' => 'required|string']);
 
-        $request->validate([
-            'content' => 'required|string',
-        ]);
-
-        if ($this->containsHateSpeech($request->content)) {
-            return response()->json(['message' => 'Content contains prohibited language'], 400);
+        if (!$contentFilter->filter($request->content)) {
+            return response()->json(['message' => 'Content contains prohibited words'], 400);
         }
 
-        $post->update($request->all());
-
-        return response()->json($post, 200);
+        return Post::create([
+            'content' => $request->content,
+            'user_id' => Auth::id(),
+        ]);
     }
 
-    public function destroy($id)
+    public function show(Post $post)
     {
-        $post = auth()->user()->posts()->findOrFail($id);
+        return $post;
+    }
+
+    public function update(Request $request, Post $post, ContentFilterService $contentFilter)
+    {
+        $this->authorize('update', $post);
+        $request->validate(['content' => 'required|string']);
+
+        if (!$contentFilter->filter($request->content)) {
+            return response()->json(['message' => 'Content contains prohibited words'], 400);
+        }
+
+        $post->update(['content' => $request->content]);
+        return $post;
+    }
+
+    public function destroy(Post $post)
+    {
+        $this->authorize('delete', $post);
         $post->delete();
-
-        return response()->json(['message' => 'Post deleted'], 200);
+        return response()->noContent();
     }
-
-    private function containsHateSpeech($content)
-    {
-        return false;
-    }
-
-
 }
+

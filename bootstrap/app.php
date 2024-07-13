@@ -13,9 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Prepend the Sanctum middleware to the 'api' middleware group
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Routing\Middleware\ThrottleRequests::class . ':60,1',
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            '/login'
         ]);
 
         // Append middleware to the 'api' group
@@ -34,7 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias middleware
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'single.device' => \App\Http\Middleware\EnsureSingleDeviceLogin::class,
         ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Exception handling can be configured here
